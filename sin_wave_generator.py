@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import math
 import sys
 import csv
+import random
 
 # Путь до файла с параметрами
 configPath = "sin_wave_generator.config"
@@ -39,7 +40,7 @@ def discreteSignal(amplitude :  float, phase_shift : float, signal_bias: float, 
     time = list()
     i = 0
     while i < samples:
-        dsignal.append(amplitude * math.sin(2 * math.pi * i * freq_signal/freq_strobe + phase_shift) )
+        dsignal.append(amplitude * math.sin(2 * math.pi * i * freq_signal/freq_strobe + phase_shift)) #+ (random.uniform(0, 0.3) - 0.15) )
         time.append(i/freq_strobe)
         i = i + 1
     return dsignal,time
@@ -51,6 +52,21 @@ def resultsFile(outputPath, time, dsignal):
         for i in range(0, samples):
             writer.writerow([time[i],dsignal[i]])
         print("Writing results complete")
+
+# def filter(dsignal):
+#     #alpha = 0.99312
+#     #0.99701
+#     alpha = 0.994461
+#     beta = 1 - alpha
+#     out = list()
+#     i = 0
+#     while i < samples:
+#         if i == 0:
+#             out.append(dsignal[i]) #out[i] = dsignal[i]
+#         else:
+#             out.append(alpha * out[i-1] + beta * dsignal[i]) #out[i] = alpha * out[i-1] + beta * dsignal[i]
+#         i = i + 1
+#     return out
 
 # def signal(amplitude :  float, samples : int, phase_shift : float, signal_bias: float): #-> numpy.ndarray:
 #     signal1 = list()
@@ -67,7 +83,9 @@ def resultsFile(outputPath, time, dsignal):
 
 readParameters(configPath)
 [dsignal, time] = discreteSignal(amplitude, phase_shift, signal_bias, freq_signal, samples, freq_strobe)
+# out_signal = filter(dsignal)
 plt.scatter([time],[dsignal], s=1)
+#plt.scatter([time],[out_signal], s=1)
 plt.xlabel('time')
 plt.show()
 resultsFile(outputPath, time, dsignal)
