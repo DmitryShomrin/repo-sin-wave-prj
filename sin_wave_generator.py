@@ -10,7 +10,7 @@ import random
 # Путь до файла с параметрами
 configPath = "sin_wave_generator.config"
 
-outputPath = "discrete_sin_wave.csv"
+outputPath = ["discrete_sin_wave_0.csv", "discrete_sin_wave_1.csv", "discrete_sin_wave_2.csv", "discrete_sin_wave_3.csv"]
 # Параметры описываются в секции [WaveParameters]
 def readParameters(configPath):
     config = configparser.ConfigParser()
@@ -22,7 +22,7 @@ def readParameters(configPath):
     global freq_signal
     global freq_strobe
     amplitude = config.getfloat("WaveParameters", "amplitude")
-    phase_shift = config.getfloat("WaveParameters", "phase_shift")
+    #phase_shift = config.getfloat("WaveParameters", "phase_shift")
     signal_bias = config.getfloat("WaveParameters", "signal_bias")
     freq_signal = config.getfloat("WaveParameters", "freq_signal")
     samples = config.getint("StrobeParameters", "samples")
@@ -81,14 +81,28 @@ def resultsFile(outputPath, time, dsignal):
 #     plt.scatter([x],[a])
 #     plt.show()
 
+theta = float(sys.argv[1]) # принимаем параметр в градусах (шаг)
+theta = numpy.deg2rad(theta) # переводим его в радианы
+r = 0.01 # Distance between sound source and microphone system (1 cm)
+phi = [0, math.pi/2, math.pi, 3/4*math.pi]
+
 readParameters(configPath)
-[dsignal, time] = discreteSignal(amplitude, phase_shift, signal_bias, freq_signal, samples, freq_strobe)
+
+for i in range(0, len(phi)):
+    phase_shift = ( -r / 340) * math.cos(theta - phi[i])
+    [dsignal, time] = discreteSignal(amplitude, phase_shift, signal_bias, freq_signal, samples, freq_strobe)
+    resultsFile(outputPath[i], time, dsignal)
+    # plt.scatter([time],[dsignal], s=1)
+    # plt.xlabel('time')
+    # plt.show()
+
+
 # out_signal = filter(dsignal)
-plt.scatter([time],[dsignal], s=1)
-#plt.scatter([time],[out_signal], s=1)
-plt.xlabel('time')
-plt.show()
-resultsFile(outputPath, time, dsignal)
+# plt.scatter([time],[dsignal], s=1)
+# # plt.scatter([time],[out_signal], s=1)
+# plt.xlabel('time')
+# plt.show()
+# resultsFile(outputPath, time, dsignal)
 # a = signal(amplitude, samples, phase_shift, signal_bias)
 # plotSignal(samples)
 
